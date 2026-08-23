@@ -43,7 +43,7 @@ model Availability {
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
 
-  @@unique([userId, dayOfWeek])
+
 }
 
 model Booking {
