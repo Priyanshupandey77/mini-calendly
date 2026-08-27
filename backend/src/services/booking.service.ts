@@ -1,3 +1,4 @@
+import { AppError } from "../errors/AppError";
 import prisma from "../lib/prisma";
 
 function timeToMinutes(time: string) {
@@ -30,7 +31,7 @@ export async function createBooking(
     },
   });
   if (!event) {
-    throw new Error("event do not exists!!");
+    throw new AppError("Event does not exist", 404);
   }
   const endTime = addMinutes(startTime, event.duration);
   const jsDay = date.getDay();
@@ -53,7 +54,7 @@ export async function createBooking(
     }
   }
   if (!isWithinAvailability) {
-    throw new Error("Booking time is outside host availability");
+    throw new AppError("Booking time is outside host availability", 400);
   }
 
   const existingBookings = await prisma.booking.findMany({
@@ -69,7 +70,7 @@ export async function createBooking(
     const existingEnd = timeToMinutes(existing.endTime);
 
     if (bookingStart < existingEnd && bookingEnd > existingStart) {
-      throw new Error("Booking overlaps with an existing slot");
+      throw new AppError("Booking overlaps with an existing slot", 409);
     }
   }
 

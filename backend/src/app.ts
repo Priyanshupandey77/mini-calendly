@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.routes.js";
 import eventRouter from "./routes/event.routes.js";
 import availabilityRouter from "./routes/availability.routes.js";
 import bookingRouter from "./routes/booking.routes.js";
+import { errorMiddleware } from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -19,5 +20,7 @@ app.get("/", (_req, res) => {
     message: "Mini Calendly API is running",
   });
 });
+
+app.use(errorMiddleware);
 
 export default app;

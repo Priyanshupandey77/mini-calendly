@@ -1,8 +1,12 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { createBookingSchema } from "../schemas/booking.schema";
 import { createBooking } from "../services/booking.service";
 
-export async function createBookingController(req: Request, res: Response) {
+export async function createBookingController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const result = createBookingSchema.safeParse(req.body);
   if (!result.success) {
     return res.status(400).json({
@@ -27,14 +31,6 @@ export async function createBookingController(req: Request, res: Response) {
       booking,
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({
-        msg: error.message,
-      });
-    }
-
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }
