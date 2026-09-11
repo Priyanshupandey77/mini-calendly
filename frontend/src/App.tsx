@@ -4,6 +4,9 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import DashboardLayout from "./layouts/DashboardLayout";
+import Events from "./components/Events";
+import Availability from "./components/Availability";
 function App() {
   return (
     <BrowserRouter>
@@ -15,10 +18,14 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <DashboardLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="events" element={<Events />} />
+          <Route path="availability" element={<Availability />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
