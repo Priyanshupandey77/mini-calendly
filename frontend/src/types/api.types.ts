@@ -34,3 +34,17 @@ export interface Booking {
   userId: number;
   eventId: number;
 }
+export interface CreateEventData {
+  title: string;
+  description?: string;
+  duration: number;
+  slug: string;
+}
+
+export interface CreateEventResponse {
+  msg: string;
+  event: Event;
+}
+export interface DeleteEventResponse {
+  msg: string;
+}
