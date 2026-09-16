@@ -48,3 +48,18 @@ export interface CreateEventResponse {
 export interface DeleteEventResponse {
   msg: string;
 }
+export interface CreateAvailabilityData {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+}
+export interface CreateAvailabilityResponse {
+  msg: string;
+  availability: Availability;
+}
+export interface GetAvailabilityResponse {
+  availability: Availability[];
+}
+export interface DeleteAvailabilityResponse {
+  msg: string;
+}
