@@ -5,9 +5,47 @@ import { createEventSchema } from "../schemas/events.js";
 import {
   createEvent,
   deleteEvent,
+  getAvailableSlots,
   getEvents,
+  getPublicEvent,
 } from "../services/event.service.js";
 import { AppError } from "../errors/AppError.js";
+
+export async function getAvailableSlotsController(req: Request, res: Response) {
+  const slug = req.params.slug;
+
+  if (typeof slug !== "string") {
+    return res.status(400).json({
+      msg: "Invalid event slug",
+    });
+  }
+
+  const date = req.query.date;
+
+  if (typeof date !== "string") {
+    return res.status(400).json({
+      msg: "Invalid date",
+    });
+  }
+
+  try {
+    const slots = await getAvailableSlots(slug, date);
+    return res.status(200).json({
+      date,
+      slots,
+    });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({
+        msg: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      msg: "Internal server error",
+    });
+  }
+}
 
 export async function createEventController(req: Request, res: Response) {
   const result = createEventSchema.safeParse(req.body);
@@ -53,6 +91,33 @@ export async function getEventsController(req: Request, res: Response) {
 
     return res.status(200).json(events);
   } catch (error) {
+    return res.status(500).json({
+      msg: "Internal server error",
+    });
+  }
+}
+
+export async function getPublicEventController(req: Request, res: Response) {
+  const slug = req.params.slug;
+  if (typeof slug !== "string") {
+    return res.status(400).json({
+      msg: "Invalid event slug",
+    });
+  }
+
+  try {
+    const event = await getPublicEvent(slug);
+
+    return res.status(200).json({
+      event,
+    });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({
+        msg: error.message,
+      });
+    }
+
     return res.status(500).json({
       msg: "Internal server error",
     });
