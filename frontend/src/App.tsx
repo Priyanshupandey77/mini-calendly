@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Events from "./components/Events";
 import Availability from "./components/Availability";
+import PublicBookingPage from "./components/Booking";
 function App() {
   return (
     <BrowserRouter>
@@ -26,6 +27,7 @@ function App() {
           <Route path="events" element={<Events />} />
           <Route path="availability" element={<Availability />} />
         </Route>
+        <Route path="book/:slug" element={<PublicBookingPage />} />
       </Routes>
     </BrowserRouter>
   );

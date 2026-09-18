@@ -11,6 +11,18 @@ export async function getEvents() {
 
   return response.data;
 }
+export async function getPublicEvent(slug: string) {
+  const response = await api.get(`/events/public/${slug}`);
+
+  return response.data;
+}
+export async function getAvailableSlots(slug: string, date: string) {
+  const response = await api.get(
+    `/events/public/${slug}/availability?date=${date}`,
+  );
+
+  return response.data;
+}
 
 export async function createEvent(data: CreateEventData) {
   const response = await api.post<CreateEventResponse>("/events", data);
@@ -19,9 +31,7 @@ export async function createEvent(data: CreateEventData) {
 }
 
 export async function deleteEvent(eventId: number) {
-  const response = await api.delete<DeleteEventResponse>(
-    `/events/${eventId}`,
-  );
+  const response = await api.delete<DeleteEventResponse>(`/events/${eventId}`);
 
   return response.data;
 }
