@@ -4,6 +4,14 @@ import type { Event } from "../types/api.types";
 import { getAvailableSlots, getPublicEvent } from "../services/event.service";
 import { createBooking } from "../services/booking.service";
 
+type ConfirmedBooking = {
+  event: Event;
+  date: string;
+  time: string;
+  guestName: string;
+  guestEmail: string;
+};
+
 export default function PublicBookingPage() {
   const { slug } = useParams();
   const [event, setEvent] = useState<Event | null>(null);
@@ -18,17 +26,34 @@ export default function PublicBookingPage() {
   const [loading, setLoading] = useState(true);
   const [bookingError, setBookingError] = useState("");
   const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
+  const [confirmedBooking, setConfirmedBooking] =
+    useState<ConfirmedBooking | null>(null);
+
+  const today = new Date().toISOString().split("T")[0];
 
   async function handleBooking() {
     if (!slug) return;
     if (!event || !selectedDate || !selectedTime) return;
-    if (!guestName.trim() || !guestEmail.trim()) {
+    if (!guestName.trim()) {
+      setFormError("Please enter your name");
+      return;
+    }
+
+    if (!guestEmail.trim()) {
+      setFormError("Please enter your email");
+      return;
+    }
+
+    if (!guestEmail.includes("@")) {
+      setFormError("Please enter a valid email");
       return;
     }
 
     setBookingLoading(true);
     setBookingSuccess("");
     setBookingError("");
+    setFormError("");
 
     try {
       const data = {
@@ -41,8 +66,15 @@ export default function PublicBookingPage() {
       await createBooking(data);
       const updatedSlots = await getAvailableSlots(slug, selectedDate);
       setSlots(updatedSlots.slots);
-      setSelectedTime("");
       setBookingSuccess("Appointment booked successfully!");
+      setConfirmedBooking({
+        event,
+        date: selectedDate,
+        time: selectedTime,
+        guestName,
+        guestEmail,
+      });
+      setSelectedTime("");
     } catch (error) {
       console.error(error);
       setBookingError("Failed to book appointment");
@@ -98,6 +130,7 @@ export default function PublicBookingPage() {
         Select a date:
         <input
           type="date"
+          min={today}
           value={selectedDate}
           onChange={(e) => {
             setSelectedDate(e.target.value);
@@ -107,12 +140,24 @@ export default function PublicBookingPage() {
         />
       </label>
       <div>
-        {slotsLoading && <p>Loading available times...</p>}
-        {slots.map((slot) => (
-          <button key={slot} onClick={() => setSelectedTime(slot)}>
-            {slot}
-          </button>
-        ))}
+        {slotsLoading ? (
+          <p>Loading available slots...</p>
+        ) : !selectedDate ? (
+          <p>Please select a date</p>
+        ) : slots.length > 0 ? (
+          slots.map((slot) => (
+            <button
+              className={selectedTime === slot ? "selected-time" : ""}
+              key={slot}
+              onClick={() => setSelectedTime(slot)}
+            >
+              {slot}
+            </button>
+          ))
+        ) : (
+          <p>Booking is not available for this date</p>
+        )}
+
         {selectedTime && <p>Selected time: {selectedTime}</p>}
         {selectedTime && (
           <div>
@@ -120,14 +165,20 @@ export default function PublicBookingPage() {
               type="text"
               placeholder="Your name"
               value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
+              onChange={(e) => {
+                setGuestName(e.target.value);
+                setFormError("");
+              }}
             />
 
             <input
               type="email"
               placeholder="Your email"
               value={guestEmail}
-              onChange={(e) => setGuestEmail(e.target.value)}
+              onChange={(e) => {
+                setGuestEmail(e.target.value);
+                setFormError("");
+              }}
             />
             <button
               type="button"
@@ -141,6 +192,17 @@ export default function PublicBookingPage() {
           </div>
         )}
         {bookingSuccess && <p>{bookingSuccess}</p>}
+        {confirmedBooking && (
+          <div>
+            {confirmedBooking.event.title},
+            {confirmedBooking.date},
+            {confirmedBooking.time},
+            {confirmedBooking.event.duration},
+            {confirmedBooking.guestName},
+            {confirmedBooking.guestEmail},
+          </div>
+        )}
+        {formError && <p>{formError}</p>}
       </div>
     </div>
   );
