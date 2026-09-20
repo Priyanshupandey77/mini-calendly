@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.routes.js";
 import eventRouter from "./routes/event.routes.js";
 import availabilityRouter from "./routes/availability.routes.js";
 import bookingRouter from "./routes/booking.routes.js";
+import hostRouter from "./routes/host.routes.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 
 const app = express();
@@ -14,6 +15,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRouter);
 app.use("/api/availability", availabilityRouter);
 app.use("/api/booking", bookingRouter);
+app.use("/api/host", hostRouter);
 
 app.get("/", (_req, res) => {
   res.json({
