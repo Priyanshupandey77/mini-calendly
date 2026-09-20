@@ -27,6 +27,7 @@ export default function PublicBookingPage() {
   const [bookingError, setBookingError] = useState("");
   const [error, setError] = useState("");
   const [formError, setFormError] = useState("");
+  const [availabilityError, setAvailabilityError] = useState("");
   const [confirmedBooking, setConfirmedBooking] =
     useState<ConfirmedBooking | null>(null);
 
@@ -102,10 +103,13 @@ export default function PublicBookingPage() {
       if (!slug || !selectedDate) return;
 
       setSlotsLoading(true);
+      setAvailabilityError("");
 
       try {
         const data = await getAvailableSlots(slug, selectedDate);
         setSlots(data.slots);
+      } catch {
+        setAvailabilityError("Failed to load available slots");
       } finally {
         setSlotsLoading(false);
       }
@@ -142,6 +146,8 @@ export default function PublicBookingPage() {
       <div>
         {slotsLoading ? (
           <p>Loading available slots...</p>
+        ) : availabilityError ? (
+          <p>Failed to load available slots</p>
         ) : !selectedDate ? (
           <p>Please select a date</p>
         ) : slots.length > 0 ? (
@@ -194,12 +200,9 @@ export default function PublicBookingPage() {
         {bookingSuccess && <p>{bookingSuccess}</p>}
         {confirmedBooking && (
           <div>
-            {confirmedBooking.event.title},
-            {confirmedBooking.date},
-            {confirmedBooking.time},
-            {confirmedBooking.event.duration},
-            {confirmedBooking.guestName},
-            {confirmedBooking.guestEmail},
+            {confirmedBooking.event.title},{confirmedBooking.date},
+            {confirmedBooking.time},{confirmedBooking.event.duration},
+            {confirmedBooking.guestName},{confirmedBooking.guestEmail},
           </div>
         )}
         {formError && <p>{formError}</p>}
