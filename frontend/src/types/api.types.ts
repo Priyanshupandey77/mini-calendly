@@ -33,6 +33,7 @@ export interface Booking {
   createdAt: string;
   userId: number;
   eventId: number;
+  event: Event;
 }
 export interface CreateEventData {
   title: string;
@@ -62,4 +63,9 @@ export interface GetAvailabilityResponse {
 }
 export interface DeleteAvailabilityResponse {
   msg: string;
+}
+
+export interface GetHostBookingsResponse {
+  msg: string;
+  bookings: Booking[];
 }

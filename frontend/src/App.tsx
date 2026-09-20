@@ -8,6 +8,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import Events from "./components/Events";
 import Availability from "./components/Availability";
 import PublicBookingPage from "./components/Booking";
+import HostBookings from "./pages/HostBookings";
 function App() {
   return (
     <BrowserRouter>
@@ -26,6 +27,7 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="events" element={<Events />} />
           <Route path="availability" element={<Availability />} />
+          <Route path="bookings" element={<HostBookings />} />
         </Route>
         <Route path="book/:slug" element={<PublicBookingPage />} />
       </Routes>
