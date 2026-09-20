@@ -148,16 +148,34 @@ export async function getPublicEvent(slug: string) {
 }
 
 export async function deleteEvent(userId: number, eventId: number) {
+  const check = await prisma.event.findUnique({
+    where: {
+      id: eventId,
+      userId,
+    },
+    include: {
+      _count: {
+        select: {
+          bookings: true,
+        },
+      },
+    },
+  });
+
+  if (check === null) {
+    throw new AppError("Event not found", 404);
+  }
+
+  if (check._count.bookings > 0) {
+    throw new AppError("Event has bookings", 409);
+  }
+
   const result = await prisma.event.deleteMany({
     where: {
       id: eventId,
       userId,
     },
   });
-
-  if (result.count === 0) {
-    throw new AppError("Event not found", 404);
-  }
 
   return result;
 }
