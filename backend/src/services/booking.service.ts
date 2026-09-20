@@ -57,33 +57,36 @@ export async function createBooking(
     throw new AppError("Booking time is outside host availability", 400);
   }
 
-  const existingBookings = await prisma.booking.findMany({
-    where: {
-      userId: event.userId,
-      date,
-    },
-  });
+  const booking = await prisma.$transaction(async (tx) => {
+    // database operations
+    const existingBookings = await tx.booking.findMany({
+      where: {
+        userId: event.userId,
+        date,
+      },
+    });
 
-  for (const existing of existingBookings) {
-    const existingStart = timeToMinutes(existing.startTime);
+    for (const existing of existingBookings) {
+      const existingStart = timeToMinutes(existing.startTime);
 
-    const existingEnd = timeToMinutes(existing.endTime);
+      const existingEnd = timeToMinutes(existing.endTime);
 
-    if (bookingStart < existingEnd && bookingEnd > existingStart) {
-      throw new AppError("Booking overlaps with an existing slot", 409);
+      if (bookingStart < existingEnd && bookingEnd > existingStart) {
+        throw new AppError("Booking overlaps with an existing slot", 409);
+      }
     }
-  }
 
-  const booking = await prisma.booking.create({
-    data: {
-      guestName,
-      guestEmail,
-      date,
-      startTime,
-      endTime,
-      userId: event.userId,
-      eventId,
-    },
+    return tx.booking.create({
+      data: {
+        guestName,
+        guestEmail,
+        date,
+        startTime,
+        endTime,
+        userId: event.userId,
+        eventId,
+      },
+    });
   });
   return booking;
 }
