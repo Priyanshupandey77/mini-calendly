@@ -90,3 +90,24 @@ export async function createBooking(
   });
   return booking;
 }
+
+export async function cancelBooking(bookingId: number, userId: number) {
+  const booking = await prisma.booking.findFirst({
+    where: {
+      id: bookingId,
+      userId,
+    },
+  });
+
+  if (!booking) {
+    throw new AppError("Booking not found", 404);
+  }
+
+  const deletedBooking = await prisma.booking.delete({
+    where: {
+      id: bookingId,
+    },
+  });
+
+  return deletedBooking;
+}

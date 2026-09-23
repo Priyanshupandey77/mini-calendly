@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { createBookingSchema } from "../schemas/booking.schema";
-import { createBooking } from "../services/booking.service";
+import { cancelBooking, createBooking } from "../services/booking.service";
 
 export async function createBookingController(
   req: Request,
@@ -29,6 +29,32 @@ export async function createBookingController(
     return res.status(201).json({
       msg: "slot booked successfully",
       booking,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function cancelBookingController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const userId = req.userId;
+  const bookingId = Number(req.params.id);
+
+  if (!userId) {
+    return res.status(401).json({
+      msg: "Unauthorized",
+    });
+  }
+
+  try {
+    const cancelledBooking = await cancelBooking(bookingId,userId);
+
+    return res.status(200).json({
+      msg: "Booking cancelled successfully",
+      cancelledBooking,
     });
   } catch (error) {
     next(error);
