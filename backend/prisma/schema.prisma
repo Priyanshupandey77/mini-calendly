@@ -55,6 +55,8 @@ model Booking {
   endTime    String
   createdAt  DateTime @default(now())
 
+  status BookingStatus @default(CONFIRMED)
+
   userId     Int
   user       User     @relation(fields: [userId], references: [id])
 
@@ -63,4 +65,9 @@ model Booking {
 
   @@index([userId, date])
   @@index([eventId, date])
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
 }

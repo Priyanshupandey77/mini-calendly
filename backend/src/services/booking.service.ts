@@ -1,4 +1,5 @@
 import { AppError } from "../errors/AppError";
+import { BookingStatus } from "@prisma/client";
 import prisma from "../lib/prisma";
 
 function timeToMinutes(time: string) {
@@ -102,12 +103,19 @@ export async function cancelBooking(bookingId: number, userId: number) {
   if (!booking) {
     throw new AppError("Booking not found", 404);
   }
+  if (booking.status === BookingStatus.CANCELLED) {
+  throw new AppError("Booking is already cancelled", 409);
+}
 
-  const deletedBooking = await prisma.booking.delete({
+
+  const cancelledBooking = await prisma.booking.update({
     where: {
       id: bookingId,
     },
+    data: {
+      status: BookingStatus.CANCELLED,
+    },
   });
 
-  return deletedBooking;
+  return cancelledBooking;
 }

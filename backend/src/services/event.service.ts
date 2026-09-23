@@ -1,4 +1,4 @@
-import { Booking } from "@prisma/client";
+import { Booking, BookingStatus } from "@prisma/client";
 import { AppError } from "../errors/AppError";
 import prisma from "../lib/prisma";
 
@@ -95,6 +95,7 @@ export async function getAvailableSlots(slug: string, dateString: string) {
     where: {
       eventId: event.id,
       date,
+      status: BookingStatus.CONFIRMED,
     },
   });
   const availableSlots = slots.filter((slot) => {
