@@ -48,6 +48,11 @@ export async function cancelBookingController(
       msg: "Unauthorized",
     });
   }
+  if (Number.isNaN(bookingId)) {
+    return res.status(400).json({
+      msg: "Invalid booking ID",
+    });
+  }
 
   try {
     const cancelledBooking = await cancelBooking(bookingId,userId);
