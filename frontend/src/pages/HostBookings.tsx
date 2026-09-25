@@ -62,6 +62,12 @@ export default function HostBookings() {
       );
     }
   });
+  const emptyMessage =
+    filter === "ALL"
+      ? "No bookings yet."
+      : filter === "UPCOMING"
+        ? "No upcoming bookings."
+        : "No cancelled bookings.";
   return (
     <div>
       <h1>My Bookings</h1>
@@ -81,7 +87,7 @@ export default function HostBookings() {
         : error
           ? error
           : filteredBookings.length === 0
-            ? "No bookings yet."
+            ? emptyMessage
             : filteredBookings.map((booking) => (
                 <div key={booking.id} className="booking-card">
                   <h2>{booking.event.title}</h2>

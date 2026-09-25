@@ -7,7 +7,7 @@ import type {
 import api from "./api";
 
 export async function register(data: RegisterData) {
-  const response = await api.post<AuthResponse>("/auth/register", data);
+  const response = await api.post<AuthResponse>("/auth/signup", data);
   return response.data;
 }
 
