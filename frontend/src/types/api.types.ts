@@ -31,6 +31,7 @@ export interface Booking {
   startTime: string;
   endTime: string;
   createdAt: string;
+  status: "CONFIRMED" | "CANCELLED";
   userId: number;
   eventId: number;
   event: Event;
