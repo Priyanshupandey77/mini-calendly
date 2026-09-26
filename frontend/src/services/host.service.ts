@@ -6,3 +6,9 @@ export async function getHostBookings() {
 
   return response.data;
 }
+
+export async function cancelBooking(bookingId: number) {
+  const response = await api.delete(`/booking/${bookingId}`);
+
+  return response.data;
+}

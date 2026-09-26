@@ -1,12 +1,36 @@
 import { useEffect, useState } from "react";
-import { getHostBookings } from "../services/host.service";
+import { cancelBooking, getHostBookings } from "../services/host.service";
 import type { Booking } from "../types/api.types";
 
 export default function HostBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filter, setFilter] = useState<"ALL" | "UPCOMING" | "CANCELLED">("ALL");
+  const [bookingToCancel, setBookingToCancel] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [cancellingBookingId, setCancellingBookingId] = useState<number | null>(
+    null,
+  );
+
+  const handleCancel = async (bookingId: number) => {
+    try {
+      setCancellingBookingId(bookingId);
+      await cancelBooking(bookingId);
+
+      setBookings((prev) =>
+        prev.map((booking) =>
+          booking.id === bookingId
+            ? { ...booking, status: "CANCELLED" }
+            : booking,
+        ),
+      );
+    } catch (error) {
+      console.error(error);
+      setError("Failed to cancel booking");
+    } finally {
+      setCancellingBookingId(null);
+    }
+  };
   useEffect(() => {
     const fetchHostData = async () => {
       try {
@@ -212,6 +236,51 @@ export default function HostBookings() {
                     </p>
                   </div>
                 </div>
+
+                {/* Cancel button */}
+                {booking.status === "CONFIRMED" && (
+                  <div className="mt-5 flex justify-end border-t border-slate-100 pt-5">
+                    <button
+                      type="button"
+                      onClick={() => setBookingToCancel(booking.id)}
+                      className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    >
+                      Cancel Booking
+                    </button>
+                  </div>
+                )}
+
+                {/* Cancellation confirmation */}
+                {bookingToCancel === booking.id && (
+                  <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
+                    <p className="text-sm font-medium text-red-900">
+                      Are you sure you want to cancel this booking?
+                    </p>
+
+                    <div className="mt-3 flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setBookingToCancel(null)}
+                        className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-white hover:text-slate-900"
+                      >
+                        Keep Booking
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={cancellingBookingId === booking.id}
+                        onClick={() => {
+                          handleCancel(booking.id);
+                        }}
+                        className="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      >
+                        {cancellingBookingId === booking.id
+                          ? "Cancelling..."
+                          : "Cancel Booking"}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
