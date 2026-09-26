@@ -148,6 +148,40 @@ export async function getPublicEvent(slug: string) {
   return event;
 }
 
+export async function updateEvent(
+  eventId: number,
+  userId: number,
+  title: string,
+  description: string | undefined,
+  slug: string,
+  duration: number,
+) {
+  const event = await prisma.event.findFirst({
+    where: {
+      id: eventId,
+      userId,
+    },
+  });
+
+  if (!event) {
+    throw new AppError("Event not found", 404);
+  }
+
+  const updatedEvent = await prisma.event.update({
+    where: {
+      id: eventId,
+    },
+    data: {
+      title,
+      description: description ?? null,
+      slug,
+      duration,
+    },
+  });
+
+  return updatedEvent;
+}
+
 export async function deleteEvent(userId: number, eventId: number) {
   const check = await prisma.event.findUnique({
     where: {

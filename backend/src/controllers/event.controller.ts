@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 
-import { createEventSchema } from "../schemas/events.js";
+import { createEventSchema, updateEventSchema } from "../schemas/events.js";
 import {
   createEvent,
   deleteEvent,
   getAvailableSlots,
   getEvents,
   getPublicEvent,
+  updateEvent,
 } from "../services/event.service.js";
 import { AppError } from "../errors/AppError.js";
 
@@ -115,6 +116,63 @@ export async function getPublicEventController(req: Request, res: Response) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({
         msg: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      msg: "Internal server error",
+    });
+  }
+}
+
+export async function updateEventController(req: Request, res: Response) {
+  const eventId = Number(req.params.id);
+  const userId = req.userId;
+
+  if (Number.isNaN(eventId)) {
+    return res.status(400).json({
+      msg: "Invalid event ID",
+    });
+  }
+
+  const result = updateEventSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      msg: "invalid input",
+      errors: result.error,
+    });
+  }
+
+  const { title, description, slug, duration } = result.data;
+
+  try {
+    const event = await updateEvent(
+      eventId,
+      userId,
+      title,
+      description,
+      slug,
+      duration,
+    );
+
+    return res.status(200).json({
+      msg: "Event updated successfully",
+      event,
+    });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({
+        msg: error.message,
+      });
+    }
+
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return res.status(409).json({
+        msg: "An event with this slug already exists",
       });
     }
 

@@ -6,3 +6,10 @@ export const createEventSchema = z.object({
   slug: z.string().min(2).max(100),
   duration: z.number().int().min(15).max(120),
 });
+
+export const updateEventSchema = z.object({
+  title: z.string().min(2).max(100),
+  description: z.string().max(100).optional(),
+  slug: z.string().min(2).max(100),
+  duration: z.number().int().min(15).max(120),
+});
