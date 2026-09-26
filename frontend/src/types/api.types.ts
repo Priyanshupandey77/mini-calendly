@@ -43,7 +43,19 @@ export interface CreateEventData {
   slug: string;
 }
 
+export interface UpdateEventData {
+  title: string;
+  description?: string;
+  duration: number;
+  slug: string;
+}
+
 export interface CreateEventResponse {
+  msg: string;
+  event: Event;
+}
+
+export interface UpdateEventResponse {
   msg: string;
   event: Event;
 }

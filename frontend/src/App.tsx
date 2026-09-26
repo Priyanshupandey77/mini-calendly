@@ -26,6 +26,7 @@ function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="events" element={<Events />} />
+          <Route path="events/edit/:id" element={<Events />} />
           <Route path="availability" element={<Availability />} />
           <Route path="bookings" element={<HostBookings />} />
         </Route>

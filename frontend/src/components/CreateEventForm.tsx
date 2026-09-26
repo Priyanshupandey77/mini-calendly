@@ -1,17 +1,46 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import eventSchema from "../schemas/event.schema";
-import { createEvent } from "../services/event.service";
-import { useNavigate } from "react-router-dom";
+import { createEvent, getEvents, updateEvent } from "../services/event.service";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 export default function EventForm() {
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [duration, setDuration] = useState("");
   const [slug, setSlug] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [apiError, setApiError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isEditMode || !id) return;
+
+    const fetchEvent = async () => {
+      try {
+        const events = await getEvents();
+
+        const event = events.find((event) => event.id === Number(id));
+
+        if (!event) {
+          setApiError("Event not found");
+          return;
+        }
+
+        setTitle(event.title);
+        setDescription(event.description ?? "");
+        setDuration(String(event.duration));
+        setSlug(event.slug);
+      } catch (error) {
+        setApiError("Failed to load event");
+      }
+    };
+
+    fetchEvent();
+  }, [id, isEditMode]);
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -38,14 +67,27 @@ export default function EventForm() {
     setErrors({});
 
     try {
-      await createEvent(validation.data);
+      setIsSubmitting(true);
+
+      if (isEditMode && id) {
+        await updateEvent(Number(id), validation.data);
+      } else {
+        await createEvent(validation.data);
+      }
       navigate("/dashboard");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setApiError(error.response?.data?.msg || "Failed to create event");
+        setApiError(
+          error.response?.data?.msg ||
+            (isEditMode ? "Failed to update event" : "Failed to create event"),
+        );
       } else {
-        setApiError("Failed to create event");
+        setApiError(
+          isEditMode ? "Failed to update event" : "Failed to create event",
+        );
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const isFormIncomplete =
@@ -140,10 +182,16 @@ export default function EventForm() {
 
       <button
         type="submit"
-        disabled={isFormIncomplete}
+        disabled={isFormIncomplete || isSubmitting}
         className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Create Event
+        {isSubmitting
+          ? isEditMode
+            ? "Updating..."
+            : "Creating..."
+          : isEditMode
+            ? "Update Event"
+            : "Create Event"}
       </button>
       {apiError && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">

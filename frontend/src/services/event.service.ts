@@ -3,6 +3,8 @@ import type {
   CreateEventResponse,
   DeleteEventResponse,
   Event,
+  UpdateEventData,
+  UpdateEventResponse,
 } from "../types/api.types";
 import api from "./api";
 
@@ -26,6 +28,15 @@ export async function getAvailableSlots(slug: string, date: string) {
 
 export async function createEvent(data: CreateEventData) {
   const response = await api.post<CreateEventResponse>("/events", data);
+
+  return response.data;
+}
+
+export async function updateEvent(eventId: number, data: UpdateEventData) {
+  const response = await api.patch<UpdateEventResponse>(
+    `/events/${eventId}`,
+    data,
+  );
 
   return response.data;
 }

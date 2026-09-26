@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import type { Event } from "../types/api.types";
 import { deleteEvent, getEvents } from "../services/event.service";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
   const { user } = useAuth();
@@ -10,6 +11,8 @@ function Dashboard() {
   const [copiedEventId, setCopiedEventId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleDelete = async (eventId: number) => {
     try {
@@ -23,6 +26,10 @@ function Dashboard() {
         setError("Failed to delete event");
       }
     }
+  };
+
+  const handleEdit = (eventId: number) => {
+    navigate(`/dashboard/events/edit/${eventId}`);
   };
 
   const handleCopyLink = async (bookingUrl: string, eventId: number) => {
@@ -93,6 +100,7 @@ function Dashboard() {
 
           <button
             type="button"
+            onClick={() => navigate("/dashboard/events")}
             className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             Create Event
@@ -167,6 +175,13 @@ function Dashboard() {
                     </button>
                     <button
                       type="button"
+                      onClick={() => handleEdit(event.id)}
+                      className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => handleDelete(event.id)}
                       className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                     >
@@ -196,6 +211,7 @@ function Dashboard() {
 
             <button
               type="button"
+              onClick={() => navigate("/dashboard/events")}
               className="mt-5 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
             >
               Create your first event
