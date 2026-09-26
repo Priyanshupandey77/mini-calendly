@@ -215,41 +215,120 @@ export default function Availability() {
   }
 
   return (
-    <div>
-      <h2>Availability</h2>
-      {error && <p>{error}</p>}
-      {success && <p>{success}</p>}
-      {availability.map((day) => (
-        <div key={day.dayOfWeek}>
-          <p>{day.name}</p>
-          <input
-            type="time"
-            onChange={(e) =>
-              handleStartTimeChange(day.dayOfWeek, e.target.value)
-            }
-            value={day.startTime}
-            disabled={!day.enabled}
-          />
-          <input
-            type="time"
-            onChange={(e) => handleEndTimeChange(day.dayOfWeek, e.target.value)}
-            value={day.endTime}
-            disabled={!day.enabled}
-          />
-          <input
-            type="checkbox"
-            checked={day.enabled}
-            disabled={loading}
-            onChange={() => handleToggleDay(day.dayOfWeek)}
-          />
-          <button
-            disabled={!day.enabled || loading}
-            onClick={() => handleSaveAvailability(day)}
-          >
-            {loading ? "saving..." : "save"}
-          </button>
+    <div className="space-y-8">
+      {/* Page header */}
+      <div>
+        <p className="text-sm font-medium text-indigo-600">Settings</p>
+
+        <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+          Availability
+        </h1>
+
+        <p className="mt-2 text-slate-500">
+          Set the hours when people can book appointments with you.
+        </p>
+      </div>
+
+      {/* Feedback messages */}
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          {error}
         </div>
-      ))}
+      )}
+
+      {success && (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+          {success}
+        </div>
+      )}
+
+      {/* Availability list */}
+      <div className="space-y-4">
+        {availability.map((day) => (
+          <div
+            key={day.dayOfWeek}
+            className={`rounded-xl border bg-white p-5 shadow-sm transition ${
+              day.enabled
+                ? "border-slate-200"
+                : "border-slate-200 bg-slate-50/70"
+            }`}
+          >
+            {/* Day header */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-slate-900">
+                  {day.name}
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  {day.enabled
+                    ? "Available for bookings"
+                    : "Not available for bookings"}
+                </p>
+              </div>
+
+              {/* Toggle */}
+              <label className="flex cursor-pointer items-center gap-3">
+                <span className="text-sm font-medium text-slate-600">
+                  {day.enabled ? "Enabled" : "Disabled"}
+                </span>
+
+                <input
+                  type="checkbox"
+                  checked={day.enabled}
+                  disabled={loading}
+                  onChange={() => handleToggleDay(day.dayOfWeek)}
+                  className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+                />
+              </label>
+            </div>
+
+            {/* Time controls */}
+            <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Start time
+                </label>
+
+                <input
+                  type="time"
+                  value={day.startTime}
+                  disabled={!day.enabled}
+                  onChange={(e) =>
+                    handleStartTimeChange(day.dayOfWeek, e.target.value)
+                  }
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  End time
+                </label>
+
+                <input
+                  type="time"
+                  value={day.endTime}
+                  disabled={!day.enabled}
+                  onChange={(e) =>
+                    handleEndTimeChange(day.dayOfWeek, e.target.value)
+                  }
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                />
+              </div>
+
+              <button
+                type="button"
+                disabled={!day.enabled || loading}
+                onClick={() => handleSaveAvailability(day)}
+                className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const { login } = useAuth();
   const navigate = useNavigate();
+
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
+
     await login({
       email,
       password,
@@ -18,24 +22,94 @@ function Login() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Welcome back..</h1>
-      <input
-        type="email"
-        name="email"
-        placeholder="Enter email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="Enter Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button>Login</button>
-    </form>
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8">
+      <div className="w-full max-w-md">
+        {/* Brand */}
+        <div className="mb-8 flex items-center justify-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
+            M
+          </div>
+
+          <span className="text-xl font-semibold tracking-tight text-slate-900">
+            Mini Calendly
+          </span>
+        </div>
+
+        {/* Login Card */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              Welcome back
+            </h1>
+
+            <p className="mt-2 text-sm text-slate-500">
+              Sign in to manage your events and bookings.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm font-medium text-slate-700"
+              >
+                Email address
+              </label>
+
+              <input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-medium text-slate-700"
+              >
+                Password
+              </label>
+
+              <input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+              />
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              Login
+            </button>
+          </form>
+        </div>
+
+        <p className="mt-6 text-center text-sm text-slate-500">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="font-semibold text-indigo-600 transition hover:text-indigo-700"
+          >
+            Create one
+          </Link>
+        </p>
+        <p className="mt-6 text-center text-xs text-slate-400">Mini Calendly</p>
+      </div>
+    </div>
   );
 }
 

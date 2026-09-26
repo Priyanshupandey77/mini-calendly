@@ -16,7 +16,6 @@ export default function EventForm() {
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
 
-    
     const validation = eventSchema.safeParse({
       title,
       description,
@@ -37,9 +36,9 @@ export default function EventForm() {
       return;
     }
     setErrors({});
-    
+
     try {
-     await createEvent(validation.data);
+      await createEvent(validation.data);
       navigate("/dashboard");
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -49,38 +48,108 @@ export default function EventForm() {
       }
     }
   };
+  const isFormIncomplete =
+    !title.trim() || !description.trim() || !duration.trim() || !slug.trim();
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Event title"
-      />
-      {errors.title && <p>{errors.title}</p>}
-      <input
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Event description"
-      />
-      {errors.description && <p>{errors.description}</p>}
-      <input
-        value={duration}
-        type="number"
-        onChange={(e) => setDuration(e.target.value)}
-        placeholder="Duration in minutes"
-      />
-      {errors.duration && <p>{errors.duration}</p>}
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-700">
+          Event title
+        </label>
 
-      <input
-        value={slug}
-        onChange={(e) => setSlug(e.target.value)}
-        placeholder="URL slug"
-      />
-      {errors.slug && <p>{errors.slug}</p>}
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="e.g. 30-minute consultation"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+        />
 
-      <button type="submit">Create Event</button>
-      {apiError && <p>{apiError}</p>}
+        {errors.title && (
+          <p className="mt-1.5 text-sm text-red-600">{errors.title}</p>
+        )}
+      </div>
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-700">
+          Description
+        </label>
+
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Describe what this meeting is about"
+          rows={4}
+          className="w-full resize-none rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+        />
+
+        {errors.description && (
+          <p className="mt-1.5 text-sm text-red-600">{errors.description}</p>
+        )}
+      </div>
+      <div className="grid gap-5 sm:grid-cols-2">
+        {/* Duration */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Duration
+          </label>
+
+          <div className="relative">
+            <input
+              value={duration}
+              type="number"
+              onChange={(e) => setDuration(e.target.value)}
+              placeholder="30"
+              min="1"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 pr-16 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+            />
+
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+              minutes
+            </span>
+          </div>
+
+          {errors.duration && (
+            <p className="mt-1.5 text-sm text-red-600">{errors.duration}</p>
+          )}
+        </div>
+
+        {/* Slug */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            URL slug
+          </label>
+
+          <div className="flex items-center overflow-hidden rounded-lg border border-slate-300 bg-white focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
+            <span className="border-r border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-400">
+              /
+            </span>
+
+            <input
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              placeholder="consultation"
+              className="min-w-0 flex-1 px-3 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+            />
+          </div>
+
+          {errors.slug && (
+            <p className="mt-1.5 text-sm text-red-600">{errors.slug}</p>
+          )}
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={isFormIncomplete}
+        className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Create Event
+      </button>
+      {apiError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          {apiError}
+        </div>
+      )}
     </form>
   );
 }
