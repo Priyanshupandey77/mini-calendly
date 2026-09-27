@@ -189,9 +189,12 @@ export async function deleteEvent(userId: number, eventId: number) {
       userId,
     },
     include: {
-      _count: {
+      bookings: {
+        where: {
+          status: BookingStatus.CONFIRMED,
+        },
         select: {
-          bookings: true,
+          id: true,
         },
       },
     },
@@ -201,15 +204,26 @@ export async function deleteEvent(userId: number, eventId: number) {
     throw new AppError("Event not found", 404);
   }
 
-  if (check._count.bookings > 0) {
+  if (check.bookings.length > 0) {
     throw new AppError("Event has bookings", 409);
   }
 
-  const result = await prisma.event.deleteMany({
-    where: {
-      id: eventId,
-      userId,
-    },
+  const result = await prisma.$transaction(async (tx) => {
+    await tx.booking.deleteMany({
+      where: {
+        eventId,
+        status: BookingStatus.CANCELLED,
+      },
+    });
+
+    const result = await tx.event.deleteMany({
+      where: {
+        id: eventId,
+        userId,
+      },
+    });
+
+    return result;
   });
 
   return result;

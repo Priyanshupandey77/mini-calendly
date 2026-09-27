@@ -199,6 +199,8 @@ export async function deleteEventController(req: Request, res: Response) {
       msg: "Event deleted successfully",
     });
   } catch (error) {
+    console.error("DELETE EVENT ERROR:", error);
+    
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({
         msg: error.message,
