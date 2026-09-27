@@ -64,6 +64,7 @@ export async function createBooking(
       where: {
         userId: event.userId,
         date,
+        status: BookingStatus.CONFIRMED,
       },
     });
 
@@ -107,6 +108,37 @@ export async function cancelBooking(bookingId: number, userId: number) {
   throw new AppError("Booking is already cancelled", 409);
 }
 
+
+  const cancelledBooking = await prisma.booking.update({
+    where: {
+      id: bookingId,
+    },
+    data: {
+      status: BookingStatus.CANCELLED,
+    },
+  });
+
+  return cancelledBooking;
+}
+
+export async function cancelBookingByGuest(
+  bookingId: number,
+  guestEmail: string,
+) {
+  const booking = await prisma.booking.findFirst({
+    where: {
+      id: bookingId,
+      guestEmail,
+    },
+  });
+
+  if (!booking) {
+    throw new AppError("Booking not found", 404);
+  }
+
+  if (booking.status === BookingStatus.CANCELLED) {
+    throw new AppError("Booking is already cancelled", 409);
+  }
 
   const cancelledBooking = await prisma.booking.update({
     where: {

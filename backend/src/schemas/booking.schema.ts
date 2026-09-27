@@ -7,3 +7,7 @@ export const createBookingSchema = z.object({
   guestName: z.string().trim().min(2),
   guestEmail: z.string().trim().email(),
 });
+
+export const guestCancelBookingSchema = z.object({
+  guestEmail: z.string().email(),
+});

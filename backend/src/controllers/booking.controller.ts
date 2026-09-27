@@ -1,6 +1,13 @@
 import { NextFunction, Request, Response } from "express";
-import { createBookingSchema } from "../schemas/booking.schema";
-import { cancelBooking, createBooking } from "../services/booking.service";
+import {
+  createBookingSchema,
+  guestCancelBookingSchema,
+} from "../schemas/booking.schema";
+import {
+  cancelBooking,
+  cancelBookingByGuest,
+  createBooking,
+} from "../services/booking.service";
 
 export async function createBookingController(
   req: Request,
@@ -55,7 +62,43 @@ export async function cancelBookingController(
   }
 
   try {
-    const cancelledBooking = await cancelBooking(bookingId,userId);
+    const cancelledBooking = await cancelBooking(bookingId, userId);
+
+    return res.status(200).json({
+      msg: "Booking cancelled successfully",
+      cancelledBooking,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function guestCancelBookingController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const bookingId = Number(req.params.id);
+
+  if (Number.isNaN(bookingId)) {
+    return res.status(400).json({
+      msg: "Invalid booking ID",
+    });
+  }
+
+  const result = guestCancelBookingSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      msg: "Invalid input",
+      errors: result.error,
+    });
+  }
+
+  const { guestEmail } = result.data;
+
+  try {
+    const cancelledBooking = await cancelBookingByGuest(bookingId, guestEmail);
 
     return res.status(200).json({
       msg: "Booking cancelled successfully",
