@@ -11,3 +11,14 @@ export async function createBooking(data: {
 
   return response.data;
 }
+
+export async function cancelBookingByGuest(
+  bookingId: number,
+  guestEmail: string,
+) {
+  const response = await api.post(`/booking/${bookingId}/cancel`, {
+    guestEmail,
+  });
+
+  return response.data;
+}

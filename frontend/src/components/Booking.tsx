@@ -2,9 +2,14 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { Event } from "../types/api.types";
 import { getAvailableSlots, getPublicEvent } from "../services/event.service";
-import { createBooking } from "../services/booking.service";
+import {
+  cancelBookingByGuest,
+  createBooking,
+} from "../services/booking.service";
+import axios from "axios";
 
 type ConfirmedBooking = {
+  id: number;
   event: Event;
   date: string;
   time: string;
@@ -23,6 +28,9 @@ export default function PublicBookingPage() {
   const [guestEmail, setGuestEmail] = useState("");
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState("");
+  const [cancellingBooking, setCancellingBooking] = useState(false);
+  const [cancellationError, setCancellationError] = useState("");
+  const [bookingCancelled, setBookingCancelled] = useState(false);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [bookingError, setBookingError] = useState("");
@@ -55,6 +63,7 @@ export default function PublicBookingPage() {
 
     setBookingLoading(true);
     setBookingSuccess("");
+    setBookingCancelled(false);
     setBookingError("");
     setFormError("");
 
@@ -67,7 +76,7 @@ export default function PublicBookingPage() {
         guestEmail,
       };
 
-      await createBooking(data);
+      const bookingData = await createBooking(data);
 
       const updatedSlots = await getAvailableSlots(slug, selectedDate);
       setSlots(updatedSlots.slots);
@@ -75,6 +84,7 @@ export default function PublicBookingPage() {
       setBookingSuccess("Appointment booked successfully!");
 
       setConfirmedBooking({
+        id: bookingData.booking.id,
         event,
         date: selectedDate,
         time: selectedTime,
@@ -90,6 +100,35 @@ export default function PublicBookingPage() {
       setBookingLoading(false);
     }
   }
+  const handleCancelBooking = async () => {
+    if (!confirmedBooking || !slug) return;
+
+    try {
+      setCancellingBooking(true);
+      setCancellationError("");
+
+      await cancelBookingByGuest(
+        confirmedBooking.id,
+        confirmedBooking.guestEmail,
+      );
+
+      const updatedSlots = await getAvailableSlots(slug, confirmedBooking.date);
+      setSlots(updatedSlots.slots);
+      setBookingSuccess("");
+      setConfirmedBooking(null);
+      setBookingCancelled(true);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setCancellationError(
+          error.response?.data?.msg || "Failed to cancel booking",
+        );
+      } else {
+        setCancellationError("Failed to cancel booking");
+      }
+    } finally {
+      setCancellingBooking(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchEvent() {
@@ -370,6 +409,28 @@ export default function PublicBookingPage() {
               </div>
             )}
 
+            {bookingCancelled && (
+              <div className="mt-8 border-t border-slate-100 pt-8">
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                      ✓
+                    </div>
+
+                    <div>
+                      <h2 className="text-base font-semibold text-amber-800">
+                        Booking cancelled
+                      </h2>
+
+                      <p className="mt-1 text-sm text-amber-700">
+                        Your appointment has been cancelled successfully.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Confirmed Booking Details */}
             {confirmedBooking && (
               <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-5">
@@ -426,6 +487,22 @@ export default function PublicBookingPage() {
                       {confirmedBooking.guestEmail}
                     </span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={handleCancelBooking}
+                    disabled={cancellingBooking}
+                    className="mt-5 w-full rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {cancellingBooking ? "Cancelling..." : "Cancel Booking"}
+                  </button>
+
+                  {cancellationError && (
+                    <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+                      <p className="text-sm font-medium text-red-700">
+                        {cancellationError}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
