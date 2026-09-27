@@ -24,6 +24,7 @@ export default function HostBookings() {
             : booking,
         ),
       );
+      setBookingToCancel(null);
     } catch (error) {
       console.error(error);
       setError("Failed to cancel booking");
