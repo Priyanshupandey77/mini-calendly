@@ -22,8 +22,18 @@ export async function signup(name: string, email: string, password: string) {
     },
   });
 
-  // 3. Return user
-  return user;
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("jwt not found");
+  }
+
+  const token = jwt.sign({ userId: user.id }, secret);
+
+  return {
+    user,
+    token,
+  };
 }
 
 export async function login(email: string, password: string) {

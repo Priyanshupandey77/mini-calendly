@@ -16,8 +16,8 @@ export async function signupController(req: Request, res: Response) {
   }
 
   const { name, email, password } = result.data;
-  const user = await signup(name, email, password);
-  return res.status(201).json(user);
+  const response = await signup(name, email, password);
+  return res.status(201).json(response);
 }
 
 export async function loginController(req: Request, res: Response) {
