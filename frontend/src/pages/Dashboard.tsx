@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import type { Event } from "../types/api.types";
+import type { Booking, Event } from "../types/api.types";
 import { deleteEvent, getEvents } from "../services/event.service";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getHostBookings } from "../services/host.service";
 
 function Dashboard() {
   const { user } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
+  const [bookingCounts, setBookingCounts] = useState<Record<number, number>>(
+    {},
+  );
   const [copiedEventId, setCopiedEventId] = useState<number | null>(null);
   const [deletingEventId, setDeletingEventId] = useState<number | null>(null);
   const [eventToDelete, setEventToDelete] = useState<number | null>(null);
@@ -24,6 +28,11 @@ function Dashboard() {
       await deleteEvent(eventId);
 
       setEvents((prev) => prev.filter((event) => event.id !== eventId));
+      setBookingCounts((prev) => {
+        const updated = { ...prev };
+        delete updated[eventId];
+        return updated;
+      });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.msg || "Failed to delete event");
@@ -59,18 +68,38 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const data = await getEvents();
-        setEvents(data);
-        setIsLoading(false);
+        setError("");
+
+        const [eventsData, bookingsData] = await Promise.all([
+          getEvents(),
+          getHostBookings(),
+        ]);
+
+        setEvents(eventsData);
+
+        const counts: Record<number, number> = {};
+
+        bookingsData.bookings.forEach((booking: Booking) => {
+          counts[booking.eventId] = (counts[booking.eventId] || 0) + 1;
+        });
+
+        setBookingCounts(counts);
       } catch (error) {
-        setError("Something went wrong.");
+        if (axios.isAxiosError(error)) {
+          setError(
+            error.response?.data?.msg || "Failed to load dashboard data",
+          );
+        } else {
+          setError("Failed to load dashboard data");
+        }
+      } finally {
         setIsLoading(false);
       }
     };
 
-    fetchEvents();
+    fetchDashboardData();
   }, []);
 
   return (
@@ -142,6 +171,7 @@ function Dashboard() {
           <div className="grid gap-4 lg:grid-cols-2">
             {events.map((event) => {
               const bookingUrl = `${window.location.origin}/book/${event.slug}`;
+              const totalBookings = bookingCounts[event.id] || 0;
               return (
                 <div
                   key={event.id}
@@ -161,6 +191,27 @@ function Dashboard() {
                     <span className="shrink-0 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
                       {event.duration} min
                     </span>
+                  </div>
+
+                  {/* Booking count */}
+                  <div className="mt-5 flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Bookings
+                      </p>
+
+                      <p className="mt-1 text-lg font-bold text-slate-900">
+                        {totalBookings}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => navigate("/dashboard/bookings")}
+                      className="text-sm font-semibold text-indigo-600 transition hover:text-indigo-700"
+                    >
+                      View Bookings →
+                    </button>
                   </div>
 
                   <div className="mt-5 rounded-lg bg-slate-50 px-4 py-3">
