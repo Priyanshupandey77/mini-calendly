@@ -57,6 +57,14 @@ export async function createBooking(
   if (!isWithinAvailability) {
     throw new AppError("Booking time is outside host availability", 400);
   }
+  
+  const [hours, minutes] = startTime.split(":").map(Number);
+
+  date.setHours(hours, minutes);
+
+  if (date.getTime() < Date.now()) {
+    throw new AppError("Booking time is in the past", 400);
+  }
 
   const booking = await prisma.$transaction(async (tx) => {
     // database operations
@@ -105,9 +113,8 @@ export async function cancelBooking(bookingId: number, userId: number) {
     throw new AppError("Booking not found", 404);
   }
   if (booking.status === BookingStatus.CANCELLED) {
-  throw new AppError("Booking is already cancelled", 409);
-}
-
+    throw new AppError("Booking is already cancelled", 409);
+  }
 
   const cancelledBooking = await prisma.booking.update({
     where: {
