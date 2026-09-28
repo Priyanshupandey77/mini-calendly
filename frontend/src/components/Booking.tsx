@@ -42,6 +42,15 @@ export default function PublicBookingPage() {
 
   const today = new Date().toISOString().split("T")[0];
 
+  const isPastSlot = (slot: string) => {
+    const [hours, minutes] = slot.split(":").map(Number);
+
+    const slotDate = new Date(selectedDate);
+    slotDate.setHours(hours, minutes);
+
+    return slotDate.getTime() < Date.now();
+  };
+
   async function handleBooking() {
     if (!slug) return;
     if (!event || !selectedDate || !selectedTime) return;
@@ -290,6 +299,7 @@ export default function PublicBookingPage() {
                     <button
                       type="button"
                       key={slot}
+                      disabled={isPastSlot(slot)}
                       onClick={() => {
                         setSelectedTime(slot);
                         setFormError("");
@@ -298,7 +308,7 @@ export default function PublicBookingPage() {
                       className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
                         selectedTime === slot
                           ? "border-indigo-600 bg-indigo-600 text-white shadow-sm"
-                          : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
                       }`}
                     >
                       {slot}
