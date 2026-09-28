@@ -1,5 +1,4 @@
-import { Request, Response } from "express";
-import { Prisma } from "@prisma/client";
+import { NextFunction, Request, Response } from "express";
 
 import { createEventSchema, updateEventSchema } from "../schemas/events.js";
 import {
@@ -10,9 +9,12 @@ import {
   getPublicEvent,
   updateEvent,
 } from "../services/event.service.js";
-import { AppError } from "../errors/AppError.js";
 
-export async function getAvailableSlotsController(req: Request, res: Response) {
+export async function getAvailableSlotsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const slug = req.params.slug;
 
   if (typeof slug !== "string") {
@@ -36,19 +38,15 @@ export async function getAvailableSlotsController(req: Request, res: Response) {
       slots,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({
-        msg: error.message,
-      });
-    }
-
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }
 
-export async function createEventController(req: Request, res: Response) {
+export async function createEventController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const result = createEventSchema.safeParse(req.body);
 
   if (!result.success) {
@@ -69,22 +67,15 @@ export async function createEventController(req: Request, res: Response) {
       event,
     });
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      return res.status(409).json({
-        msg: "An event with this slug already exists",
-      });
-    }
-
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }
 
-export async function getEventsController(req: Request, res: Response) {
+export async function getEventsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const userId = req.userId;
 
   try {
@@ -92,13 +83,15 @@ export async function getEventsController(req: Request, res: Response) {
 
     return res.status(200).json(events);
   } catch (error) {
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }
 
-export async function getPublicEventController(req: Request, res: Response) {
+export async function getPublicEventController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const slug = req.params.slug;
   if (typeof slug !== "string") {
     return res.status(400).json({
@@ -113,19 +106,15 @@ export async function getPublicEventController(req: Request, res: Response) {
       event,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({
-        msg: error.message,
-      });
-    }
-
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }
 
-export async function updateEventController(req: Request, res: Response) {
+export async function updateEventController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const eventId = Number(req.params.id);
   const userId = req.userId;
 
@@ -161,28 +150,15 @@ export async function updateEventController(req: Request, res: Response) {
       event,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({
-        msg: error.message,
-      });
-    }
-
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      return res.status(409).json({
-        msg: "An event with this slug already exists",
-      });
-    }
-
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }
 
-export async function deleteEventController(req: Request, res: Response) {
+export async function deleteEventController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const eventId = Number(req.params.id);
   const userId = req.userId;
 
@@ -199,16 +175,6 @@ export async function deleteEventController(req: Request, res: Response) {
       msg: "Event deleted successfully",
     });
   } catch (error) {
-    console.error("DELETE EVENT ERROR:", error);
-    
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({
-        msg: error.message,
-      });
-    }
-
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }

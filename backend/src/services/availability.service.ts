@@ -1,3 +1,4 @@
+import { AppError } from "../errors/AppError";
 import prisma from "../lib/prisma";
 
 function timeToMinutes(time: string) {
@@ -30,7 +31,7 @@ export async function createAvailability(
   const endMinutes = timeToMinutes(endTime);
 
   if (startMinutes >= endMinutes) {
-    throw new Error("Start time must be before end time");
+    throw new AppError("Start time must be before end time", 400);
   }
 
   const existingSlots = await existingAvailability(dayOfWeek, userId);
@@ -40,7 +41,7 @@ export async function createAvailability(
     const existingEnd = timeToMinutes(existing.endTime);
 
     if (startMinutes < existingEnd && endMinutes > existingStart) {
-      throw new Error("Availability overlaps with an existing slot");
+      throw new AppError("Availability overlaps with an existing slot", 409);
     }
   }
 
@@ -82,7 +83,7 @@ export async function updateAvailability(
   const endMinutes = timeToMinutes(endTime);
 
   if (startMinutes >= endMinutes) {
-    throw new Error("Start time must be before end time");
+    throw new AppError("Start time must be before end time", 400);
   }
 
   const existing = await prisma.availability.findFirst({
@@ -93,7 +94,7 @@ export async function updateAvailability(
   });
 
   if (!existing) {
-    throw new Error("Availability not found");
+    throw new AppError("Availability not found", 404);
   }
 
   const existingSlots = await prisma.availability.findMany({
@@ -111,7 +112,7 @@ export async function updateAvailability(
     const existingEnd = timeToMinutes(existing.endTime);
 
     if (startMinutes < existingEnd && endMinutes > existingStart) {
-      throw new Error("Availability overlaps with an existing slot");
+      throw new AppError("Availability overlaps with an existing slot", 409);
     }
   }
 
@@ -142,7 +143,7 @@ export async function deleteAvailability(
   });
 
   if (!existing) {
-    throw new Error("Availability not found");
+    throw new AppError("Availability not found", 404);
   }
 
   await prisma.availability.delete({

@@ -1,4 +1,4 @@
-import { Booking, BookingStatus } from "@prisma/client";
+import { Booking, BookingStatus, Prisma } from "@prisma/client";
 import { AppError } from "../errors/AppError";
 import prisma from "../lib/prisma";
 
@@ -111,17 +111,28 @@ export async function createEvent(
   duration: number,
   userId: number,
 ) {
-  const event = await prisma.event.create({
-    data: {
-      title,
-      description: description ?? null,
-      slug,
-      duration,
-      userId,
-    },
-  });
+  try {
+    const event = await prisma.event.create({
+      data: {
+        title,
+        description: description ?? null,
+        slug,
+        duration,
+        userId,
+      },
+    });
 
-  return event;
+    return event;
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new AppError("An event with this slug already exists", 409);
+    }
+
+    throw error;
+  }
 }
 
 export async function getEvents(userId: number) {
@@ -166,20 +177,31 @@ export async function updateEvent(
   if (!event) {
     throw new AppError("Event not found", 404);
   }
+  
+  try {
+    const updatedEvent = await prisma.event.update({
+      where: {
+        id: eventId,
+      },
+      data: {
+        title,
+        description: description ?? null,
+        slug,
+        duration,
+      },
+    });
 
-  const updatedEvent = await prisma.event.update({
-    where: {
-      id: eventId,
-    },
-    data: {
-      title,
-      description: description ?? null,
-      slug,
-      duration,
-    },
-  });
+    return updatedEvent;
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new AppError("An event with this slug already exists", 409);
+    }
 
-  return updatedEvent;
+    throw error;
+  }
 }
 
 export async function deleteEvent(userId: number, eventId: number) {

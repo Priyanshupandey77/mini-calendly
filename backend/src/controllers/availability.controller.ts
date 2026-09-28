@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { availabilitySchema } from "../schemas/availability.schema";
 
 import {
@@ -11,6 +11,7 @@ import {
 export async function createAvailabilityController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ) {
   const result = availabilitySchema.safeParse(req.body);
 
@@ -37,15 +38,7 @@ export async function createAvailabilityController(
       availability,
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({
-        msg: error.message,
-      });
-    }
-
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }
 
@@ -53,6 +46,7 @@ export async function createAvailabilityController(
 export async function getAvailabilityController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ) {
   const userId = req.userId;
 
@@ -63,9 +57,7 @@ export async function getAvailabilityController(
       availability,
     });
   } catch (error) {
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }
 
@@ -73,6 +65,7 @@ export async function getAvailabilityController(
 export async function updateAvailabilityController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ) {
   const result = availabilitySchema.safeParse(req.body);
 
@@ -108,15 +101,7 @@ export async function updateAvailabilityController(
       availability,
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({
-        msg: error.message,
-      });
-    }
-
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }
 
@@ -124,6 +109,7 @@ export async function updateAvailabilityController(
 export async function deleteAvailabilityController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ) {
   const availabilityId = Number(req.params.id);
 
@@ -142,14 +128,6 @@ export async function deleteAvailabilityController(
       msg: "Availability deleted successfully",
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return res.status(404).json({
-        msg: error.message,
-      });
-    }
-
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }

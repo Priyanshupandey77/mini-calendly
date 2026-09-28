@@ -1,7 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { getHostBookings } from "../services/host.service";
 
-export async function getHostBookingsController(req: Request, res: Response) {
+export async function getHostBookingsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const userId = req.userId;
 
   if (!userId) {
@@ -18,10 +22,6 @@ export async function getHostBookingsController(req: Request, res: Response) {
       bookings,
     });
   } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    next(error);
   }
 }
