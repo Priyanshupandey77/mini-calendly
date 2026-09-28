@@ -170,10 +170,13 @@ export default function EventForm() {
             <input
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
-              placeholder="consultation"
+              placeholder="e.g. 30-minute-consultation"
               className="min-w-0 flex-1 px-3 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400"
             />
           </div>
+          <p className="mt-1.5 text-xs text-slate-500">
+            Use lowercase letters, numbers, and hyphens only.
+          </p>
 
           {errors.slug && (
             <p className="mt-1.5 text-sm text-red-600">{errors.slug}</p>
