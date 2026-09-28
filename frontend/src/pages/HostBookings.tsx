@@ -101,11 +101,11 @@ export default function HostBookings() {
         <div>
           <p className="text-sm font-medium text-indigo-600">Bookings</p>
 
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
             My Bookings
           </h1>
 
-          <p className="mt-2 text-slate-500">
+          <p className="mt-2 text-sm text-slate-500 sm:text-base">
             View and manage the appointments people have booked with you.
           </p>
         </div>
@@ -264,7 +264,7 @@ export default function HostBookings() {
                         Are you sure you want to cancel this booking?
                       </p>
 
-                      <div className="mt-3 flex justify-end gap-2">
+                      <div className="mt-3 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                         <button
                           type="button"
                           onClick={(event) => {

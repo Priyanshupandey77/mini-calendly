@@ -108,11 +108,11 @@ function Dashboard() {
       <section>
         <p className="text-sm font-medium text-indigo-600">Dashboard</p>
 
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
           Welcome back, {user?.name} 👋
         </h1>
 
-        <p className="mt-2 text-slate-500">
+        <p className="mt-2 text-sm text-slate-500 sm:text-base">
           Manage your events and availability from one place.
         </p>
       </section>
@@ -224,7 +224,7 @@ function Dashboard() {
                     </p>
                   </div>
 
-                  <div className="mt-5 flex items-center justify-end gap-1">
+                  <div className="mt-5 flex flex-wrap gap-2 sm:justify-end">
                     <a
                       href={bookingUrl}
                       target="_blank"
@@ -281,7 +281,7 @@ function Dashboard() {
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end gap-3">
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={() => setEventToDelete(null)}
