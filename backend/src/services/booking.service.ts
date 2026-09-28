@@ -57,12 +57,13 @@ export async function createBooking(
   if (!isWithinAvailability) {
     throw new AppError("Booking time is outside host availability", 400);
   }
-  
+
   const [hours, minutes] = startTime.split(":").map(Number);
 
-  date.setHours(hours, minutes);
+  const bookingDateTime = new Date(date);
+  bookingDateTime.setHours(hours, minutes);
 
-  if (date.getTime() < Date.now()) {
+  if (bookingDateTime.getTime() < Date.now()) {
     throw new AppError("Booking time is in the past", 400);
   }
 
