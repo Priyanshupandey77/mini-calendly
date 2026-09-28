@@ -9,6 +9,8 @@ function Dashboard() {
   const { user } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [copiedEventId, setCopiedEventId] = useState<number | null>(null);
+  const [deletingEventId, setDeletingEventId] = useState<number | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -16,6 +18,9 @@ function Dashboard() {
 
   const handleDelete = async (eventId: number) => {
     try {
+      setError("");
+      setDeletingEventId(eventId);
+
       await deleteEvent(eventId);
 
       setEvents((prev) => prev.filter((event) => event.id !== eventId));
@@ -25,7 +30,18 @@ function Dashboard() {
       } else {
         setError("Failed to delete event");
       }
+    } finally {
+      setDeletingEventId(null);
     }
+  };
+  const confirmDelete = async () => {
+    if (eventToDelete === null) return;
+
+    const eventId = eventToDelete;
+
+    setEventToDelete(null);
+
+    await handleDelete(eventId);
   };
 
   const handleEdit = (eventId: number) => {
@@ -182,15 +198,56 @@ function Dashboard() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDelete(event.id)}
+                      disabled={deletingEventId === event.id}
+                      onClick={() => setEventToDelete(event.id)}
                       className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                     >
-                      Delete
+                      {deletingEventId === event.id ? "Deleting..." : "Delete"}
                     </button>
                   </div>
                 </div>
               );
             })}
+          </div>
+        )}
+        {eventToDelete !== null && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
+            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+              <div className="flex items-start gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                  !
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    Delete Event?
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    Are you sure you want to delete this event? This action
+                    cannot be undone.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEventToDelete(null)}
+                  className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={confirmDelete}
+                  className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

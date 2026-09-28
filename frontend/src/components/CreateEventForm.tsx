@@ -67,6 +67,7 @@ export default function EventForm() {
     setErrors({});
 
     try {
+      setApiError("");
       setIsSubmitting(true);
 
       if (isEditMode && id) {
