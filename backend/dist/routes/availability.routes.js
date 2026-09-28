@@ -5,4 +5,7 @@ const auth_middleware_1 = require("../middleware/auth.middleware");
 const availability_controller_1 = require("../controllers/availability.controller");
 const router = (0, express_1.Router)();
 router.post("/", auth_middleware_1.authMiddleware, availability_controller_1.createAvailabilityController);
+router.get("/", auth_middleware_1.authMiddleware, availability_controller_1.getAvailabilityController);
+router.put("/:id", auth_middleware_1.authMiddleware, availability_controller_1.updateAvailabilityController);
+router.delete("/:id", auth_middleware_1.authMiddleware, availability_controller_1.deleteAvailabilityController);
 exports.default = router;

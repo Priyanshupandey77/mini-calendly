@@ -6,5 +6,8 @@ const event_controller_1 = require("../controllers/event.controller");
 const router = (0, express_1.Router)();
 router.post("/", auth_middleware_1.authMiddleware, event_controller_1.createEventController);
 router.get("/", auth_middleware_1.authMiddleware, event_controller_1.getEventsController);
+router.get("/public/:slug/availability", event_controller_1.getAvailableSlotsController);
+router.get("/public/:slug", event_controller_1.getPublicEventController);
+router.patch("/:id", auth_middleware_1.authMiddleware, event_controller_1.updateEventController);
 router.delete("/:id", auth_middleware_1.authMiddleware, event_controller_1.deleteEventController);
 exports.default = router;
