@@ -6,6 +6,7 @@ export default function HostBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filter, setFilter] = useState<"ALL" | "UPCOMING" | "CANCELLED">("ALL");
   const [bookingToCancel, setBookingToCancel] = useState<number | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cancellingBookingId, setCancellingBookingId] = useState<number | null>(
@@ -97,196 +98,313 @@ export default function HostBookings() {
     <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <p className="text-sm font-medium text-indigo-600">Bookings</p>
+        <div>
+          <p className="text-sm font-medium text-indigo-600">Bookings</p>
 
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
-          My Bookings
-        </h1>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+            My Bookings
+          </h1>
 
-        <p className="mt-2 text-slate-500">
-          View and manage the appointments people have booked with you.
-        </p>
-      </div>
+          <p className="mt-2 text-slate-500">
+            View and manage the appointments people have booked with you.
+          </p>
+        </div>
 
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
-        <button
-          type="button"
-          onClick={() => setFilter("ALL")}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-            filter === "ALL"
-              ? "bg-indigo-50 text-indigo-700"
-              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-          }`}
-        >
-          All
-          <span className="ml-1.5 text-xs">({totalBookings})</span>
-        </button>
+        {/* Filter Tabs */}
+        <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+          <button
+            type="button"
+            onClick={() => setFilter("ALL")}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              filter === "ALL"
+                ? "bg-indigo-50 text-indigo-700"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            }`}
+          >
+            All
+            <span className="ml-1.5 text-xs">({totalBookings})</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setFilter("UPCOMING")}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-            filter === "UPCOMING"
-              ? "bg-indigo-50 text-indigo-700"
-              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-          }`}
-        >
-          Upcoming
-          <span className="ml-1.5 text-xs">({upcomingBookings})</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setFilter("UPCOMING")}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              filter === "UPCOMING"
+                ? "bg-indigo-50 text-indigo-700"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            }`}
+          >
+            Upcoming
+            <span className="ml-1.5 text-xs">({upcomingBookings})</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setFilter("CANCELLED")}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-            filter === "CANCELLED"
-              ? "bg-indigo-50 text-indigo-700"
-              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-          }`}
-        >
-          Cancelled
-          <span className="ml-1.5 text-xs">({cancelledBookings})</span>
-        </button>
-      </div>
-      {/* Booking Results */}
-      <div>
-        {loading ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <p className="text-sm text-slate-500">Loading bookings...</p>
-          </div>
-        ) : error ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {error}
-          </div>
-        ) : filteredBookings.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-              📅
+          <button
+            type="button"
+            onClick={() => setFilter("CANCELLED")}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              filter === "CANCELLED"
+                ? "bg-indigo-50 text-indigo-700"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            }`}
+          >
+            Cancelled
+            <span className="ml-1.5 text-xs">({cancelledBookings})</span>
+          </button>
+        </div>
+        {/* Booking Results */}
+        <div>
+          {loading ? (
+            <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+              <p className="text-sm text-slate-500">Loading bookings...</p>
             </div>
+          ) : error ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+              {error}
+            </div>
+          ) : filteredBookings.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                📅
+              </div>
 
-            <h2 className="mt-4 text-lg font-semibold text-slate-900">
-              {emptyMessage}
-            </h2>
+              <h2 className="mt-4 text-lg font-semibold text-slate-900">
+                {emptyMessage}
+              </h2>
 
-            <p className="mt-2 text-sm text-slate-500">
-              Bookings matching this filter will appear here.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredBookings.map((booking) => (
-              <div
-                key={booking.id}
-                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6"
-              >
-                {/* Top section */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <h2 className="text-lg font-semibold text-slate-900">
-                      {booking.event.title}
-                    </h2>
+              <p className="mt-2 text-sm text-slate-500">
+                Bookings matching this filter will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredBookings.map((booking) => (
+                <div
+                  key={booking.id}
+                  onClick={() => setSelectedBooking(booking)}
+                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6"
+                >
+                  {/* Top section */}
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <h2 className="text-lg font-semibold text-slate-900">
+                        {booking.event.title}
+                      </h2>
 
-                    <p className="mt-1 text-sm text-slate-500">
-                      Booking #{booking.id}
-                    </p>
-                  </div>
+                      <p className="mt-1 text-sm text-slate-500">
+                        Booking #{booking.id}
+                      </p>
+                    </div>
 
-                  <span
-                    className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${
-                      booking.status === "CONFIRMED"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-red-50 text-red-700"
-                    }`}
-                  >
-                    {booking.status}
-                  </span>
-                </div>
-
-                {/* Booking details */}
-                <div className="mt-5 grid gap-4 border-t border-slate-100 pt-5 sm:grid-cols-2">
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                      Guest
-                    </p>
-
-                    <p className="mt-1 text-sm font-medium text-slate-900">
-                      {booking.guestName}
-                    </p>
-
-                    <p className="mt-1 text-sm text-slate-500">
-                      {booking.guestEmail}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                      Date & time
-                    </p>
-
-                    <p className="mt-1 text-sm font-medium text-slate-900">
-                      {new Date(booking.date).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </p>
-
-                    <p className="mt-1 text-sm text-slate-500">
-                      {booking.startTime} – {booking.endTime}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Cancel button */}
-                {booking.status === "CONFIRMED" && (
-                  <div className="mt-5 flex justify-end border-t border-slate-100 pt-5">
-                    <button
-                      type="button"
-                      onClick={() => setBookingToCancel(booking.id)}
-                      className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    <span
+                      className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                        booking.status === "CONFIRMED"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-red-50 text-red-700"
+                      }`}
                     >
-                      Cancel Booking
-                    </button>
+                      {booking.status}
+                    </span>
                   </div>
-                )}
 
-                {/* Cancellation confirmation */}
-                {bookingToCancel === booking.id && (
-                  <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
-                    <p className="text-sm font-medium text-red-900">
-                      Are you sure you want to cancel this booking?
-                    </p>
+                  {/* Booking details */}
+                  <div className="mt-5 grid gap-4 border-t border-slate-100 pt-5 sm:grid-cols-2">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Guest
+                      </p>
 
-                    <div className="mt-3 flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setBookingToCancel(null)}
-                        className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-white hover:text-slate-900"
-                      >
-                        Keep Booking
-                      </button>
+                      <p className="mt-1 text-sm font-medium text-slate-900">
+                        {booking.guestName}
+                      </p>
 
-                      <button
-                        type="button"
-                        disabled={cancellingBookingId === booking.id}
-                        onClick={() => {
-                          handleCancel(booking.id);
-                        }}
-                        className="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                      >
-                        {cancellingBookingId === booking.id
-                          ? "Cancelling..."
-                          : "Cancel Booking"}
-                      </button>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {booking.guestEmail}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Date & time
+                      </p>
+
+                      <p className="mt-1 text-sm font-medium text-slate-900">
+                        {new Date(booking.date).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+
+                      <p className="mt-1 text-sm text-slate-500">
+                        {booking.startTime} – {booking.endTime}
+                      </p>
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+
+                  {/* Cancel button */}
+                  {booking.status === "CONFIRMED" && (
+                    <div className="mt-5 flex justify-end border-t border-slate-100 pt-5">
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setBookingToCancel(booking.id);
+                        }}
+                        className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      >
+                        Cancel Booking
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Cancellation confirmation */}
+                  {bookingToCancel === booking.id && (
+                    <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
+                      <p className="text-sm font-medium text-red-900">
+                        Are you sure you want to cancel this booking?
+                      </p>
+
+                      <div className="mt-3 flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setBookingToCancel(null);
+                          }}
+                          className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-white hover:text-slate-900"
+                        >
+                          Keep Booking
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={cancellingBookingId === booking.id}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleCancel(booking.id);
+                          }}
+                          className="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                        >
+                          {cancellingBookingId === booking.id
+                            ? "Cancelling..."
+                            : "Cancel Booking"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+      {selectedBooking !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
+          onClick={() => setSelectedBooking(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-indigo-600">
+                  Booking Details
+                </p>
+
+                <h2 className="mt-1 text-xl font-semibold text-slate-900">
+                  {selectedBooking.event.title}
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedBooking(null)}
+                className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Status */}
+            <div className="mt-5">
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                  selectedBooking.status === "CONFIRMED"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-red-50 text-red-700"
+                }`}
+              >
+                {selectedBooking.status}
+              </span>
+            </div>
+
+            {/* Details */}
+            <div className="mt-6 space-y-5">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Booking
+                </p>
+
+                <p className="mt-1 text-sm font-medium text-slate-900">
+                  #{selectedBooking.id}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Guest
+                </p>
+
+                <p className="mt-1 text-sm font-medium text-slate-900">
+                  {selectedBooking.guestName}
+                </p>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  {selectedBooking.guestEmail}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Date
+                </p>
+
+                <p className="mt-1 text-sm font-medium text-slate-900">
+                  {new Date(selectedBooking.date).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Time
+                </p>
+
+                <p className="mt-1 text-sm font-medium text-slate-900">
+                  {selectedBooking.startTime} – {selectedBooking.endTime}
+                </p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-7 flex justify-end border-t border-slate-100 pt-5">
+              <button
+                type="button"
+                onClick={() => setSelectedBooking(null)}
+                className="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
