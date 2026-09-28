@@ -308,7 +308,7 @@ export default function HostBookings() {
             onClick={(event) => event.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 sm:justify-between sm:gap-4">
               <div>
                 <p className="text-sm font-medium text-indigo-600">
                   Booking Details
