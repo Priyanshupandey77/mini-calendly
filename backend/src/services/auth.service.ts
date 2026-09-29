@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import prisma from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
+import { AppError } from "../errors/AppError.js";
 
 export async function signup(name: string, email: string, password: string) {
   const normalizedEmail = email.toLowerCase();
@@ -8,19 +9,29 @@ export async function signup(name: string, email: string, password: string) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   // 2. Create user
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email: normalizedEmail,
-      password: hashedPassword,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      createdAt: true,
-    },
-  });
+  let user;
+
+  try {
+    user = await prisma.user.create({
+      data: {
+        name,
+        email: normalizedEmail,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+      },
+    });
+  } catch (error: any) {
+    if (error.code === "P2002") {
+      throw new AppError("Email is already registered", 409);
+    }
+
+    throw error;
+  }
 
   const secret = process.env.JWT_SECRET;
 

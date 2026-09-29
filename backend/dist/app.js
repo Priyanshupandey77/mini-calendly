@@ -21,7 +21,7 @@ app.use("/api/booking", booking_routes_js_1.default);
 app.use("/api/host", host_routes_js_1.default);
 app.get("/", (_req, res) => {
     res.json({
-        message: "Mini Calendly API is running",
+        message: "MeetFlow API is running",
     });
 });
 app.use(error_middleware_js_1.errorMiddleware);

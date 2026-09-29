@@ -19,7 +19,7 @@ app.use("/api/host", hostRouter);
 
 app.get("/", (_req, res) => {
   res.json({
-    message: "Mini Calendly API is running",
+    message: "MeetFlow API is running",
   });
 });
 
