@@ -23,7 +23,7 @@ export default function Navbar() {
           </div>
 
           <span className="text-lg font-semibold tracking-tight text-slate-900">
-            Mini Calendly
+            MeetFlow
           </span>
         </div>
 

@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import axios from "axios";
 
 function Register() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -15,6 +17,8 @@ function Register() {
     e.preventDefault();
 
     try {
+      setIsLoading(true);
+      setError("");
       await register({
         email,
         name,
@@ -23,7 +27,13 @@ function Register() {
 
       navigate("/dashboard");
     } catch (error) {
-      setError("Registration failed..");
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.msg || "Registration failed");
+      } else {
+        setError("Registration failed");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -37,7 +47,7 @@ function Register() {
           </div>
 
           <span className="text-xl font-semibold tracking-tight text-slate-900">
-            Mini Calendly
+            MeetFlow
           </span>
         </div>
 
@@ -69,7 +79,10 @@ function Register() {
                 name="username"
                 placeholder="Enter your name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setError("");
+                }}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
@@ -89,7 +102,10 @@ function Register() {
                 name="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
@@ -109,7 +125,10 @@ function Register() {
                 name="password"
                 placeholder="Create a password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
@@ -124,9 +143,10 @@ function Register() {
             {/* Submit */}
             <button
               type="submit"
+              disabled={isLoading}
               className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
-              Create account
+              {isLoading ? "Creating account..." : "Create account"}
             </button>
           </form>
         </div>
@@ -142,7 +162,7 @@ function Register() {
           </Link>
         </p>
 
-        <p className="mt-4 text-center text-xs text-slate-400">Mini Calendly</p>
+        <p className="mt-4 text-center text-xs text-slate-400">MeetFlow</p>
       </div>
     </div>
   );

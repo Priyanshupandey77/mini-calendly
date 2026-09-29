@@ -206,7 +206,7 @@ export default function PublicBookingPage() {
           </div>
 
           <span className="text-lg font-semibold tracking-tight text-slate-900">
-            Mini Calendly
+            MeetFlow
           </span>
         </div>
 
@@ -520,7 +520,7 @@ export default function PublicBookingPage() {
         </div>
 
         <p className="mt-8 text-center text-xs text-slate-400">
-          Powered by Mini Calendly
+          Powered by MeetFlow
         </p>
       </div>
     </div>

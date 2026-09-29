@@ -49,7 +49,7 @@ export default function Sidebar() {
         </nav>
 
         <div className="mt-auto border-t border-slate-200 pt-4">
-          <p className="px-3 text-xs text-slate-400">Mini Calendly</p>
+          <p className="px-3 text-xs text-slate-400">MeetFlow</p>
         </div>
       </div>
     </aside>

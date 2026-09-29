@@ -6,19 +6,24 @@ import { Link } from "react-router-dom";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
 
-    await login({
-      email,
-      password,
-    });
+    try {
+      setIsLoading(true);
+      await login({
+        email,
+        password,
+      });
 
-    navigate("/dashboard");
+      navigate("/dashboard");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,7 +36,7 @@ function Login() {
           </div>
 
           <span className="text-xl font-semibold tracking-tight text-slate-900">
-            Mini Calendly
+            MeetFlow
           </span>
         </div>
 
@@ -91,9 +96,10 @@ function Login() {
             {/* Submit */}
             <button
               type="submit"
+              disabled={isLoading}
               className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
-              Login
+              {isLoading ? "Logging in..." : "Login"}
             </button>
           </form>
         </div>
@@ -107,7 +113,7 @@ function Login() {
             Create one
           </Link>
         </p>
-        <p className="mt-6 text-center text-xs text-slate-400">Mini Calendly</p>
+        <p className="mt-6 text-center text-xs text-slate-400">MeetFlow</p>
       </div>
     </div>
   );

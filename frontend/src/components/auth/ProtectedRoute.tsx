@@ -18,7 +18,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
           </div>
 
           <p className="mt-4 text-sm font-medium text-slate-600">
-            Loading Mini Calendly...
+            Loading MeetFlow...
           </p>
         </div>
       </div>

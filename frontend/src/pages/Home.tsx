@@ -12,7 +12,7 @@ function Home() {
             </div>
 
             <span className="text-lg font-semibold tracking-tight text-slate-900">
-              Mini Calendly
+              MeetFlow
             </span>
           </div>
 
@@ -138,7 +138,7 @@ function Home() {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white px-4 py-6">
-        <p className="text-center text-xs text-slate-400">Mini Calendly</p>
+        <p className="text-center text-xs text-slate-400">MeetFlow</p>
       </footer>
     </div>
   );
