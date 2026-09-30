@@ -94,7 +94,7 @@ Date and time handling
 Protected routes
 Responsive React development
 Production deployment and debugging
-##🔮 Future Improvements
+## 🔮 Future Improvements
 Password reset / forgot password
 Email notifications for bookings
 ## 📄 License
